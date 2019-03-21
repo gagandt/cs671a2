@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 #MNIST Dataset
 from tensorflow.examples.tutorials.mnist import input_data
-data = input_data.read_data_sets('data/fashion',one_hot=True)
+data = input_data.read_data_sets('MNIST_data',one_hot=True)
 
 """
 # Shapes of training set
@@ -22,6 +22,8 @@ print("Test set (labels) shape: {shape}".format(shape=data.test.labels.shape))
 # Reshape training and testing image
 train_X = data.train.images.reshape(-1, 28, 28, 1)
 test_X = data.test.images.reshape(-1,28,28,1)
+
+print(train_X.shape)
 
 
 
