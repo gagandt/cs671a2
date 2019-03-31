@@ -3,11 +3,13 @@ import numpy as np
 from skimage import io
 
 class data:
-    
-    def __init__(self, directory):
+    directory= ""
+    def __init__(self, addr ):
+        self.directory = addr
         
-        os.chdir(directory)
-
+    
+    def load(self):
+        os.chdir(self.directory)
 
         class_labels = []
         all_images = []

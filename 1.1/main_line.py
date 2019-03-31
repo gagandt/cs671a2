@@ -6,7 +6,9 @@ from keras.utils import to_categorical
 from sklearn.model_selection import train_test_split
 
 from load_data import data
-x_train, y_train = data("output")
+dataset = data("output")
+x_train, y_train = dataset.load()
+
 
 print(len(x_train))        
 print(len(y_train))  
@@ -19,8 +21,8 @@ print(X_train.shape)
 
 
 #reshaping
-X_train = X_train.reshape(len(X_train),3,28,28)
-X_test = X_test.reshape(len(X_test),3,28,28)
+X_train = X_train.reshape(len(X_train),28,28,3)
+X_test = X_test.reshape(len(X_test),28,28,3)
 
 
 #Converting to binary class matrix
@@ -33,7 +35,7 @@ print(X_train.shape)
 model = Sequential()
 #Architecture
 model.add(Conv2D(32, (7, 7), padding='same',
-                     input_shape=(3, 28,28)))
+                     input_shape=(28,28,3)))
 model.add(Activation('relu'))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2), strides=2))
