@@ -14,6 +14,8 @@ X_test = X_test.reshape(10000,28,28,1)
 y_train = to_categorical(y_train)
 y_test = to_categorical(y_test)
 
+print(X_test.shape)
+
 
 #Model
 model = Sequential()
@@ -31,9 +33,27 @@ model.add(Dense(10, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 #training
-model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=3)
+history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=2)
+
+print(history.history.keys())
+# summarize history for accuracy
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+# summarize history for loss
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
 
 #predicting
-model.predict(X_test[:])
+model.evaluate(X_test, y_test)
 
-y_test[:10]
+

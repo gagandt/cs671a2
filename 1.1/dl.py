@@ -1,13 +1,14 @@
 import tensorflow as tf
+import numpy as np
 
 
 tf.reset_default_graph()
 
 # Inputs
 x = tf.placeholder(tf.float32, shape=(None, 28, 28, 3), name='input_x')
-y1 =  tf.placeholder(tf.float32, shape=(None, 1), name='angle_y')
-y2 =  tf.placeholder(tf.float32, shape=(None, 1), name='angle_y')
-y3 =  tf.placeholder(tf.float32, shape=(None, 1), name='angle_y')
+y1 =  tf.placeholder(tf.float32, shape=(None, 1), name='length_y')
+y2 =  tf.placeholder(tf.float32, shape=(None, 1), name='width_y')
+y3 =  tf.placeholder(tf.float32, shape=(None, 1), name='color_y')
 y4 =  tf.placeholder(tf.float32, shape=(None, 12), name='angle_y')
 keep_prob = tf.placeholder(tf.float32, name='keep_prob')
 
@@ -61,6 +62,7 @@ def conv_net(x, keep_prob):
 ###############################
 epochs = 10
 batch_size = 128
+no_of_batches = 96000/batch_size
 keep_probability = 0.7
 learning_rate = 0.001
 ##############################
@@ -89,10 +91,10 @@ correct_pred_col = tf.equal(tf.argmax(color_logits, 1), tf.argmax(y3, 1))
 correct_pred_ang = tf.equal(tf.argmax(angle_logits, 1), tf.argmax(y4, 1))
 
 
-accuracy_length = tf.reduce_mean(tf.cast(correct_pred_len, tf.float32), name='length accuracy')
-accuracy_width = tf.reduce_mean(tf.cast(correct_pred_wid, tf.float32), name='width accuracy')
-accuracy_color = tf.reduce_mean(tf.cast(correct_pred_col, tf.float32), name='color accuracy')
-accuracy_angle = tf.reduce_mean(tf.cast(correct_pred_ang, tf.float32), name='angle accuracy')
+accuracy_length = tf.reduce_mean(tf.cast(correct_pred_len, tf.float32), name='length_accuracy')
+accuracy_width = tf.reduce_mean(tf.cast(correct_pred_wid, tf.float32), name='width_accuracy')
+accuracy_color = tf.reduce_mean(tf.cast(correct_pred_col, tf.float32), name='color_accuracy')
+accuracy_angle = tf.reduce_mean(tf.cast(correct_pred_ang, tf.float32), name='angle_accuracy')
 
 accuracy = accuracy_angle + accuracy_color + accuracy_length + accuracy_width
 accuracy = accuracy / 4
@@ -135,11 +137,30 @@ def print_stats(session, feature_batch, length_batch, width_batch, color_batch, 
     )
     print('Loss: {:>10.4f} Validation Accuracy: {:.6f}'.format(loss, valid_acc))
 
-#Isko likho bas. Data k hisaab se
-def load_preprocess_training_batch(batch_size):
-    #jo bhi karo
+from cus_load import data
+dataset = data("output")
+X_train, y_leng, y_widt, y_colo, y_angl = dataset.load()
 
-    return X_train, y_len, y_wid, y_col, y_angle
+from keras.utils import to_categorical
+X_train = X_train.reshape(len(X_train),28,28,3)
+
+y_angl = to_categorical(y_angl)
+
+y_leng.reshape(96000,1)
+
+print(y_leng.shape)
+
+X_train = np.split(X_train, no_of_batches)
+y_leng = np.split(y_leng, no_of_batches)
+y_widt = np.split(y_widt, no_of_batches)
+y_colo = np.split(y_colo, no_of_batches)
+y_angl = np.split(y_angl, no_of_batches)
+
+
+def load_preprocess_training_batch(batch_size, batch_number, total_batches):
+    
+    
+    return X_train[batch_number], y_leng[batch_number], y_widt[batch_number], y_colo[batch_number], y_angl[batch_number]
     # Each of size 128 (Or anything)
 
 
@@ -150,11 +171,11 @@ with tf.Session() as sess:
     for epoch in range(epochs):
         # Calculate this: 
         total_X_train = len(X_train) #Iska kuch karo. Ye value sahi aani chahiye
-        n_batches = total_X_train / batch_size
+        n_batches = int(no_of_batches)
 
-        for batch_i in range(1, n_batches + 1):
-            for batch_features, length_labels, width_labels, color_labels, angle_labels in load_preprocess_training_batch(batch_size):
-                train_neural_network(sess, optimizer, keep_probability, batch_features, length_labels, width_labels, color_labels, angle_labels)
+        for batch_number in range(1, n_batches + 1):
+            #for batch_features, length_labels, width_labels, color_labels, angle_labels in load_preprocess_training_batch(batch_size):
+            train_neural_network(sess, optimizer, keep_probability, X_train[batch_number], y_leng[batch_number], y_widt[batch_number], y_colo[batch_number], y_angl[batch_number])
 
             print('Epoch {:>2}, Line Dataset Batch {}:  '.format(epoch + 1, batch_i), end='')
 
@@ -162,4 +183,4 @@ with tf.Session() as sess:
 
 
 
-##### load_preprocess_training_batch ==== Ye Tomar ya kisiko likhna hai
+##### load_preprocess_training_batch ==== Ye Tomar ya kisiko likhna hai"""

@@ -21,8 +21,8 @@ print(X_train.shape)
 
 
 #reshaping
-X_train = X_train.reshape(len(X_train),28,28,3)
-X_test = X_test.reshape(len(X_test),28,28,3)
+X_train = X_train.reshape(len(X_train),3,28,28)
+X_test = X_test.reshape(len(X_test),3,28,28)
 
 
 #Converting to binary class matrix
@@ -35,7 +35,7 @@ print(X_train.shape)
 model = Sequential()
 #Architecture
 model.add(Conv2D(32, (7, 7), padding='same',
-                     input_shape=(28,28,3)))
+                     input_shape=(3,28,28)))
 model.add(Activation('relu'))
 model.add(BatchNormalization())
 model.add(MaxPooling2D(pool_size=(2, 2), strides=2))
@@ -48,11 +48,29 @@ model.add(Dense(96, activation='softmax'))
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 #training
-model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=3)
+history = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=3)
+
+print(history.history.keys())
+# summarize history for accuracy
+import matplotlib.pyplot as plt
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
+# summarize history for loss
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.show()
 
 #predicting
-model.predict(X_test[:])
-
-y_test[:10]
+#predicting
+model.evaluate(X_test, y_test)
 
 
